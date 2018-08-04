@@ -224,9 +224,9 @@ if __name__ == "__main__":
     # %% Hyperparameters
     # these 4 parameters need to be changed if training in AWS
     batch_size = 50
-    num_workers = 1
-    log_interval = 10
-    num_epochs = 5
+    num_workers = 2
+    log_interval = 5
+    num_epochs = 500
 
 
     embed_size = 256
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     train_path = data_path + "processed_data/data_train/"
     test_path = data_path + "processed_data/data_test/"
     vocab_path = data_path + "bootstrap.vocab"
-    model_save_path = "./model_saved/"
+    # model_save_path = "./model_saved/"
 
     # %% read vocabulary content from file
     with open(vocab_path, 'r') as file:
@@ -317,7 +317,7 @@ if __name__ == "__main__":
                 print(status)
                 niter = epoch*len(train_loader)+i
                 writer.add_scalar('Train/Loss', loss.item(), niter)
-                writer.add_scalar('Train/Progress', (epoch+1)/num_epochs, niter)
+                writer.add_scalar('Train/Progress', 100*(epoch+1)/num_epochs, niter)
                 #writer.add_scalar('Learning_Rate', optimizer.param_groups[-1]['lr'], niter)
                 #writer.add_text('Status', status, niter)
 
@@ -331,10 +331,10 @@ if __name__ == "__main__":
             features_test = encoder(images_test)
             outputs_test = decoder(features_test, captions_test, lengths_test)
             loss_test = criterion(outputs_test, targets_test)
-            loss_test_total += loss_test
+            loss_test_total += loss_test.item()
 
         loss_test_total /= j
-        writer.add_scalar('Test/Loss', loss_test_total.item(), epoch)
+        writer.add_scalar('Test/Loss', loss_test_total, epoch)
 
 
             #epoch_loss += loss.item()
