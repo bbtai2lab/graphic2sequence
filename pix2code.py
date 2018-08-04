@@ -310,7 +310,6 @@ if __name__ == "__main__":
             optimizer.step()
 
             if i % log_interval == 0:
-                print(i)
                 status = "Epoch [{:>4d}/{:<4d}] --> Loss : {:>4.4f}\tPerplexity: {:>5.4f}".format(
                                         epoch+1,num_epochs,loss.item(), torch.exp(loss).item())
                 print(status)
@@ -331,8 +330,6 @@ if __name__ == "__main__":
             outputs_test = decoder(features_test, captions_test, lengths_test)
             loss_test = criterion(outputs_test, targets_test)
             loss_test_total += loss_test.item()
-
-        print(j+1)
         loss_test_total /= j+1
         writer.add_scalar('Test/Loss', loss_test_total, epoch)
 
