@@ -226,14 +226,14 @@ if __name__ == "__main__":
     batch_size = 50
     num_workers = 2
     log_interval = 7
-    num_epochs = 500
+    num_epochs = 100
 
 
     embed_size = 256
     hidden_size = 512
     num_layers = 1
     crop_size = 224                                                                 # required by resnet, do not change
-    save_interval = 50
+    save_interval = 100
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # %% Paths
