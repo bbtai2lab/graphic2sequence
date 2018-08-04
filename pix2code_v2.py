@@ -1,7 +1,8 @@
 #-----------------------------------------------------------------------------
 # pix2code implementation with image caption method from
 # https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/03-advanced/image_captioning
-# with resnet to be fixed
+#
+# - with resnet to be fixed
 #-----------------------------------------------------------------------------
 
 # %% Imports
@@ -289,10 +290,13 @@ if __name__ == "__main__":
     #optimizer = torch.optim.Adam(params, lr=learning_rate)
     optimizer = torch.optim.Adadelta(params=params,lr=1.0)
 
-    # %% training
+    # %% info and tensorboardX
+    info = "CNN model    : resnet18, pretrained=False, fixed=True \n"
+    info+= "num_epochs   : 100 \n"
     time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     writer = tensorboardX.SummaryWriter("./Logs/{}".format(time))
 
+    # %% training
     for epoch in range(num_epochs):
         encoder.train(); decoder.train()
         print("-"*60)
@@ -312,9 +316,11 @@ if __name__ == "__main__":
             optimizer.step()
 
             if i % log_interval == 0:
-                status = "Epoch [{:>4d}/{:<4d}] --> Loss : {:>4.4f}\tPerplexity: {:>5.4f}".format(
+                status = "Epoch [{:>4d}/{:<4d}] --> Loss : {:>4.4f}\tPerplexity: {:>5.4f}\n".format(
                                         epoch+1,num_epochs,loss.item(), torch.exp(loss).item())
-                print(status)
+                #print(status)
+                info += status
+
                 niter = epoch*len(train_loader)+i+1
                 writer.add_scalar('Train/Loss', loss.item(), niter)
                 writer.add_scalar('Train/Progress', 100*(epoch+1)/num_epochs, niter)
@@ -350,8 +356,6 @@ if __name__ == "__main__":
     writer.close()
 
     # save identification information
-    info = "CNN model    : resnet18, pretrained=False, fixed=True \n"
-    info+= "num_epochs   : 100 \n"
     with open("./Logs/{}/info".format(time), "w+") as file:
         file.write(info)
 

@@ -110,4 +110,4 @@ venv.bak/
 SendEmail.py
 
 # large files
-Logs/
+*.pkl
