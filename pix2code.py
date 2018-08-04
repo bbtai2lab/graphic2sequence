@@ -150,7 +150,7 @@ class EncoderCNN(torch.nn.Module):
         """Load the pretrained ResNet-152 and replace top fc layer."""
         super(EncoderCNN,self).__init__()
 
-        resnet = torchvision.models.resnet18(pretrained=True)
+        resnet = torchvision.models.resnet50(pretrained=False)
         modules = list(resnet.children())[:-1]                                  # except the last fc layer
         self.resnet = torch.nn.Sequential(*modules)
         self.fc = torch.nn.Linear(resnet.fc.in_features, embed_size)
@@ -193,21 +193,21 @@ class DecoderRNN(torch.nn.Module):
 
         return outputs
 
-    def sample(self, features, states=None):
-        """Generate captions for given image features using greedy search."""
-
-        sampled_ids = []
-        inputs = features.unsqueeze(1)
-        for i in range(self.max_se1_length):
-            hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
-            outputs = self.fc(hiddens.squeeze(1))                # outputs:  (batch_size, vocab_size)
-            _, predicted = outputs.max(1)                        # predicted: (batch_size)
-            sampled_ids.append(predicted)
-            inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
-            inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
-        sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
-
-        return sampled_ids
+    # def sample(self, features, states=None):
+    #     """Generate captions for given image features using greedy search."""
+    #
+    #     sampled_ids = []
+    #     inputs = features.unsqueeze(1)
+    #     for i in range(self.max_seq_length):
+    #         hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
+    #         outputs = self.fc(hiddens.squeeze(1))                # outputs:  (batch_size, vocab_size)
+    #         _, predicted = outputs.max(1)                        # predicted: (batch_size)
+    #         sampled_ids.append(predicted)
+    #         inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
+    #         inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
+    #     sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
+    #
+    #     return sampled_ids
 
 #-----------------------------------------------------------------------------
 # criterion and optimizer
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     # these 4 parameters need to be changed if training in AWS
     batch_size = 50
     num_workers = 2
-    log_interval = 5
+    log_interval = 7
     num_epochs = 500
 
 
@@ -293,10 +293,8 @@ if __name__ == "__main__":
     writer = tensorboardX.SummaryWriter("./Logs/{}".format(time))
 
     for epoch in range(num_epochs):
-        #epoch_loss = 0.0
         print("-"*60)
-        for i, (images, captions, lengths) in enumerate(train_loader, 1):
-
+        for i, (images, captions, lengths) in enumerate(train_loader):
             # Set mini-batch dataset
             images = torch.autograd.Variable( images.to(device) )
             captions = torch.autograd.Variable( captions.to(device) )
@@ -312,10 +310,11 @@ if __name__ == "__main__":
             optimizer.step()
 
             if i % log_interval == 0:
+                print(i)
                 status = "Epoch [{:>4d}/{:<4d}] --> Loss : {:>4.4f}\tPerplexity: {:>5.4f}".format(
                                         epoch+1,num_epochs,loss.item(), torch.exp(loss).item())
                 print(status)
-                niter = epoch*len(train_loader)+i
+                niter = epoch*len(train_loader)+i+1
                 writer.add_scalar('Train/Loss', loss.item(), niter)
                 writer.add_scalar('Train/Progress', 100*(epoch+1)/num_epochs, niter)
                 #writer.add_scalar('Learning_Rate', optimizer.param_groups[-1]['lr'], niter)
@@ -323,7 +322,7 @@ if __name__ == "__main__":
 
         # validation
         loss_test_total = 0.0
-        for j, (images_test, captions_test, lengths_test) in enumerate(test_loader, 1):
+        for j, (images_test, captions_test, lengths_test) in enumerate(test_loader):
 
             images_test = torch.autograd.Variable( images_test.to(device) )
             captions_test = torch.autograd.Variable( captions_test.to(device) )
@@ -333,20 +332,18 @@ if __name__ == "__main__":
             loss_test = criterion(outputs_test, targets_test)
             loss_test_total += loss_test.item()
 
-        loss_test_total /= j
+        print(j+1)
+        loss_test_total /= j+1
         writer.add_scalar('Test/Loss', loss_test_total, epoch)
 
 
-            #epoch_loss += loss.item()
-        #epoch_loss /= i
-        #writer.add_scalar('Train/Epoch_Loss(totally {} Epochs)', epoch_loss, (epoch+1)/num_epochs)
-
         # save model
-
-        if (epoch + 1) % save_interval == 0 or epoch==0:
+        if (epoch + 1) % save_interval == 0:
             print('!!! saving models at epoch: ' + str(epoch+1))
-            torch.save(encoder.state_dict(),os.path.join("./Logs/{}/".format(time), "encoder_epoch{}.pkl".format(epoch+1)))
-            torch.save(decoder.state_dict(),os.path.join("./Logs/{}/".format(time), "decoder_epoch{}.pkl".format(epoch+1)))
+            #torch.save(encoder.state_dict(),os.path.join("./Logs/{}/".format(time), "encoder_epoch{}.pkl".format(epoch+1)))
+            #torch.save(decoder.state_dict(),os.path.join("./Logs/{}/".format(time), "decoder_epoch{}.pkl".format(epoch+1)))
+            torch.save(encoder, os.path.join("./Logs/{}/".format(time), "encoder_epoch{}.pkl".format(epoch+1)) )
+            torch.save(decoder, os.path.join("./Logs/{}/".format(time), "decoder_epoch{}.pkl".format(epoch+1)) )
 
     print("Training Terminated.")
     #writer.export_scalars_to_json("./Logs/{}/all_scalar.json".format(time))
