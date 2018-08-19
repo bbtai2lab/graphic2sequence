@@ -1,2 +1,0 @@
-CNN model    : resnet18, pretrained=False, fixed=True 
-num_epochs   : 100 
