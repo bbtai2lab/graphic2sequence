@@ -7,5 +7,5 @@ pix2code implementation with image caption method from
 
 with 3 kinds of CNN encoder:
 1. Resnet18
-2. Resnet152 (torch.no_grad())
+2. Resnet152 (`torch.no_grad()`)
 3. 2 layer CNN pretrained by AutoEncoder
