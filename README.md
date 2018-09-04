@@ -11,9 +11,9 @@ with 3 kinds of CNN encoder:
 3. 2 layer CNN pretrained by AutoEncoder [./pix2code_AE_pretrained.py](./pix2code_AE_pretrained.py)
 > model is defined in [./AE_bootstrap.py](./AE_bootstrap.py)
 
-conclusion : best accuracy is acheived by *free* Resnet18 CNN-Encoder ( *free* : train CNN-Encoder and LSTM-Decoder simultaneously.)
+**conclusion** : best accuracy is acheived by *free* Resnet18 CNN-Encoder ( *free* : train CNN-Encoder and LSTM-Decoder simultaneously.)
 
-Result : accuracy in Test dataset : 169/175 = 96.57%, including 4 mistakes caused by button color and 2 by layout.
+**Result** : accuracy in Test dataset : 169/175 = 96.57%, including 4 mistakes caused by button color and 2 by layout.
 ```
 [   7/ 175] :
 		btn-green  	-->	 btn-orange
@@ -149,7 +149,11 @@ Result : accuracy in Test dataset : 169/175 = 96.57%, including 4 mistakes cause
 		}          	-->	 None      
 		<END>      	-->	 None 
 ```
+# other files
 
+- [./memo.py](./memo.py) : Log of experiments
+- [./Library_v1.py](./Library_v1.py) : Vocabulary and Dataset class
+- bootstrap.vocab : vocabulary for bootstrap
 
 
 # AutoEncoding bootstrap images
