@@ -5,6 +5,8 @@
 を実装して、100epochsを訓練してみる。
 > folder : 2018-08-04-03-40-07; Resnet18, free, Adadelta
 
+---
+
 2. 1をもとに、さらに200epochsを学習させる。
 > folder : 20180805-123547; Resnet18, free, Adam。これをもとに、さらに100epochs学習させる：folder : 20180806-125422; Resnet18, free, Adam
 >
@@ -13,6 +15,8 @@
 結論
   - Adam：LOSS下がるのが早い；Adadelta：下がるのが遅いが、安定
   - optimizerが転移学習の時初期化された。optimizerの状態も引き継いだほうがいい？
+  
+---
 
 3. Resnet152は果たして最強なのかを確認するために、Resnet18の代わりにResnet152を入れてみます。
 > folder : 20180805-130004; Resnet152, fixed, Adam
@@ -22,7 +26,9 @@
 結論：
   -  Adam：LOSS下がるのが早いが、過学習しやすい？；Adadelta：下がるのが遅いが、安定
   -  Resnet152が複雑な画像識別に強いが、Fixして再訓練しないと、やはり再訓練したResnet18に敵わない　ー＞　HTML画像に最適したEncoderCNNが必要？
-  
+
+---
+
 今までResnet18(free)の方が一番安定かつLoss低いように見えます。HTML画像に最適したEncoderCNNを探すために、Auto-Encoderのbootstrap画像の自分から自分を生成する訓練を使います.出発点になるモデルは
   ```
   class AE(torch.nn.Module):
@@ -80,6 +86,8 @@
 4. 以上は`latent`層を固定せずに再学習させるモデルです。結局すぐ過学習しました。`latent`中の`Linear`層の素子が多すぎるのが原因でしょうか？
 > folder : 20180807-212125; AE, fixed, Adam
 
+---
+
 5. ということで、`latent`中の`Linear`層を全部再学習させないようにやってみます。結果として、よくなりました。
 > folder : 20180808-182726; AE, fixed, Adam
 ```
@@ -101,11 +109,15 @@ class EncoderCNN(torch.nn.Module):
 結論：
   - 訓練する中間Linear層のニューラル数がたくさんあると、過学習しやすい？
   - Train/Lossが低い、Test/Lossがなかなか落ちて来ないのはなぜでしょう？（過学習じゃない場合）
-  
+
+---
+
 というわけで、AEモデルの精度によって、pix2codeに実装して使うときかなり影響受けるようです。もうちょっと調べます。
 
 6. とりあえず、比較できるようにResnet18(free)を400epochs学習させる
 > folder : 20180813-135108; Resnet18, free; Adadelta
+
+---
 
 7. AEを使う方のpix2codeの`self.feature`の中の`torch.nn.LeakyReLU(0.2, inplace=True),`は果たしているのか？単純に`torch.nn.BatchNorm1d(embed_size,momentum=0.01)`にしてみました。
 > folder : 20180809-130653; AE, fixed; Adadelta
@@ -113,9 +125,13 @@ class EncoderCNN(torch.nn.Module):
 結論：
   - AutoEncoderを使った転移学習、LeakyReLUをBatchNorm1dに変えたらよくなったみたい。なぜ？もっといけそう？epochsを800するとLossがもっと下がるかな？
   - 両者のLoss(Train/Test)が同じ下がり方のように見える、Resnet18の方が速いかな。Resnet18は多分限界まで学習した？
-  
+
+---
+
 8. 7を800epochs訓練すると、過学習。
 > folder : 20180819-053738; AE, dixed; Adadelta
+
+---
 
 そして、ミスに気づきました。Auto-Encoderの学習に`torchvision.transforms.Normalize`がなかったが、pix2code+AEに`torchvision.transforms.Normalize`がありました。以下のように、
 
@@ -132,6 +148,8 @@ transform = torchvision.transforms.Compose([
 
 疑問： 両方のTest/Lossの差は一体何が原因でしょうか？CNNの部分も一緒に訓練すること？
 
+---
+
 10. 9をもとに、`CNN`と`latent`--> free, embed_size --> 64, latent_size --> 64
 > folder : 20180820-075257; AE, free; Adadelta
 
@@ -141,7 +159,10 @@ transform = torchvision.transforms.Compose([
 結論：
   - embed_sizeは「画像がこれからの時系列を語る」の多様性に対応するので、64はさすがに小さい
   - hidden_sizeはある一つの特徴を入力する時に出力の次元である、ある意味で、「次の入力特徴がそれの時系列を語る」の多様性に対応するので、hiddenz_size >= embed_size ?
-  
+  - Resnet18(free)に敵わない.
+
+---
+
 というわけで、`LSTM`の方は多分これでままいけるでしょう。細かいところは多分`bidirection`とかつかって精度をあげるしかないかもしれない。button色の間違いはやはり`CNN`のfeature抽出を改善すれば治るでしょう。ここから`AE_experiment_v?.py`に入ります。
 
 12. version 2, 画像生成に情報圧縮の`latent`層は必須ではないかもしれない、除いてみる。（pix2codeに実装しようと思うと、結局featureを代表する`Linear`層にまとめる形、つまり`latent`層になりますが、とりあえず、情報を捨てない場合色認識間違うかを確認する価値があります。）
@@ -175,6 +196,8 @@ transform = torchvision.transforms.Compose([
 結果：ゆっくり下がっていく。
 
 以上の実験では、色認識は改善できませんでした。(12はわかりません。plotの画像は16枚しかなくて、何も言えない)
+
+---
 
 ということで、黒い文字（いらない情報）を除去して、色認識に集中してもらえるかな？
 
