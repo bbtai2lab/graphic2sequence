@@ -10,6 +10,7 @@ with 3 kinds of CNN encoder:
 2. Resnet152 (`torch.no_grad()`)
 3. 2 layer CNN pretrained by AutoEncoder (model is defined in AE_bootstrap.py)
 
+conclusion : best accuracy is acheived by *free* Resnet18 CNN-Encoder ( *free* : train CNN-Encoder and LSTM-Decoder simultaneously.)
 
 # AutoEncoding bootstrap images
 ---
