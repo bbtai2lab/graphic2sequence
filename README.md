@@ -10,8 +10,9 @@ with 3 kinds of CNN encoder:
 2. Resnet152 (`torch.no_grad()`)
 3. 2 layer CNN pretrained by AutoEncoder (model is defined in AE_bootstrap.py)
 
+
+# AutoEncoding bootstrap images
 ---
-AutoEncoding bootstrap images
 
 Several experiment (*AE_experiment_v?.py*) to see **whether we can solve the button color issue** by pretraining a CNN-Encoder by Auto-Encoding bootstrap images.
 
