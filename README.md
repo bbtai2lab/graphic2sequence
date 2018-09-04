@@ -151,7 +151,7 @@ with 3 kinds of CNN encoder:
 ```
 # other files
 
-- [./memo.py](./memo.py) : Log of experiments
+- [./memo.md](./memo.md) : Log of experiments
 - [./Library_v1.py](./Library_v1.py) : Vocabulary and Dataset class
 - bootstrap.vocab : vocabulary for bootstrap
 
