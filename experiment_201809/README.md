@@ -77,7 +77,7 @@ then trained DecoderRNN as in [bootstrapRNN_v1.py](../featuremap/bootstrapRNN_v1
 
 loss curve is shown in the following figure,
 
-![losscurve_bootstrapRNN_v1.png](./featuremap/losscurve_bootstrapRNN_v1.png)
+![losscurve_bootstrapRNN_v1.png](./featuremap/figures/losscurve_bootstrapRNN_v1.png)
 
 the validation loss saturate at ~0.02, which is extremely similar to what we see in *experiment_201808*. so we conclude that the overfitting of our training mainly comes from DecoderRNN.
 
