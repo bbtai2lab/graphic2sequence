@@ -84,3 +84,5 @@ the validation loss saturate at ~0.02, which is extremely similar to what we see
 observing the difference between validation loss and training loss (red curve), we see that overfitting starts when training loss ~0.07.
 
 ### pix2code_v2_21_12_3.py
+
+so in this experiment, we early stopped training when training loss is roughly 0.07,
