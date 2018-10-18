@@ -89,7 +89,7 @@ so in this experiment, we early stopped training when training loss is 0.06, the
 
 loss curve of training EncoderCNN indivisually is as following,
 
-![losscurve_pix2code_v2_21_12_3.png](./featuremap/figures/osscurve_pix2code_v2_21_12_3.png)
+![losscurve_pix2code_v2_21_12_3.png](./featuremap/figures/losscurve_pix2code_v2_21_12_3.png)
 
 as what we imagined, **if we train EncoderCNN only, there will be no overfitting**.
 
