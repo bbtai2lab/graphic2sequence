@@ -81,8 +81,25 @@ loss curve is shown in the following figure,
 
 the validation loss saturate at ~0.02, which is extremely similar to what we see in *experiment_201808*. so we conclude that the overfitting of our training mainly comes from DecoderRNN.
 
-observing the difference between validation loss and training loss (red curve), we see that overfitting starts when training loss ~0.07.
+observing the difference between validation loss and training loss (red curve), we see that overfitting starts when training loss ~0.06.
 
 ### pix2code_v2_21_12_3.py
 
-so in this experiment, we early stopped training when training loss is roughly 0.07,
+so in this experiment, we early stopped training when training loss is 0.06, then fixed the weights in DecoderRNN and trained EncoderCNN indivisually.
+
+loss curve of training EncoderCNN indivisually is as following,
+
+![losscurve_pix2code_v2_21_12_3.png](./featuremap/figures/osscurve_pix2code_v2_21_12_3.png)
+
+as what we imagined, **if we train EncoderCNN only, there will be no overfitting**.
+
+sample of caption generation can be found in [this folder](./featuremap/sample/pix2code_v2_21_12_3). `btn-color` issue has been imporved a lot.
+
+So, in conclusion, two keys to train "EncoderCNN+DecoderRNN" type model are,
+
+1. don't let your DecoderRNN overfit
+2. have suitable CNN layers to extract features in EncoderCNN.
+
+---
+
+furthermore, in the case of bootstrap CNN layers can be as simple as `conv_color` plus some downsample pooling layers only. we performed this kind of experiment with GRU instead of LSTM in AWS:~/bbtai2/pix2code/Train_v6.py, which acheived a validation loss smaller than 0.005. but this experiment will not be introduced here since the idea is the same: prevent overfitting in DecoderRNN and get an accurate (and simple) CNN.
